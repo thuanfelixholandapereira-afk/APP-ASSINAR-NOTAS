@@ -1,9 +1,42 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Assinador PDF</title><script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script><style>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Assinador PDF</title>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="signature.js"></script>
+<style>
 *{box-sizing:border-box}body{margin:0;background:#f4f6f8;font-family:Arial,sans-serif;color:#17202a}.app{max-width:720px;margin:auto;min-height:100vh;background:#fff;padding:22px 18px}h1{font-size:24px;margin:0 0 5px}p{color:#667085;font-size:14px;margin:0 0 18px}.drop{border:2px dashed #b7c1cb;border-radius:14px;padding:36px 16px;text-align:center;background:#fafbfc;display:block;cursor:pointer}.drop b{display:block;font-size:17px;margin-bottom:7px}#files{display:none}.list{margin:16px 0;font-size:13px}.item{padding:9px 0;border-bottom:1px solid #eee;word-break:break-word}details{margin-top:14px;border:1px solid #e0e5ea;border-radius:12px;padding:12px}summary{font-weight:700;cursor:pointer}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}label{font-size:12px;color:#667085;display:block;margin-bottom:5px}input{width:100%;padding:11px;border:1px solid #d8dee4;border-radius:9px;font-size:16px}button{width:100%;border:0;border-radius:11px;padding:15px;margin-top:18px;background:#1769aa;color:#fff;font-size:16px;font-weight:700}button:disabled{opacity:.45}#status{font-size:13px;margin-top:12px;color:#667085;text-align:center}@media(max-width:520px){.grid{grid-template-columns:1fr}}
-</style></head><body><div class="app"><h1>Assinador de PDF</h1><p>Selecione uma ou mais notas em PDF.</p><label class="drop" for="files"><b>Toque para escolher os PDFs</b><span>Você pode selecionar vários arquivos.</span></label><input id="files" type="file" accept="application/pdf" multiple><div id="list" class="list"></div><details><summary>Ajustar posição da assinatura</summary><div class="grid"><div><label>Largura da assinatura (cm)</label><input id="width" type="number" step="0.1" value="4.1"></div><div><label>Distância da borda inferior (cm)</label><input id="bottom" type="number" step="0.1" value="8"></div><div><label>Distância da borda superior (cm)</label><input id="top" type="number" step="0.1" placeholder="opcional"></div><div><label>Distância da borda esquerda (cm)</label><input id="left" type="number" step="0.1" placeholder="opcional"></div><div><label>Distância da borda direita (cm)</label><input id="right" type="number" step="0.1" placeholder="opcional"></div></div></details><button id="sign" disabled>Assinar e salvar</button><div id="status"></div></div><script>
-const SIG='data:image/png;base64,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';const $=id=>document.getElementById(id);let selected=[];$('files').onchange=e=>{selected=[...e.target.files];$('sign').disabled=!selected.length;$('list').innerHTML=selected.map(f=>'<div class="item">'+f.name+'</div>').join('');};
-function num(id){const v=parseFloat($(id).value);return Number.isFinite(v)?v:null}function dataUrlBytes(u){const b=atob(u.split(',')[1]),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a}
+</style>
+</head>
+<body>
+<div class="app">
+<h1>Assinador de PDF</h1>
+<p>Selecione uma ou mais notas em PDF.</p>
+<label class="drop" for="files"><b>Toque para escolher os PDFs</b><span>Você pode selecionar vários arquivos.</span></label>
+<input id="files" type="file" accept="application/pdf" multiple>
+<div id="list" class="list"></div>
+<details><summary>Ajustar posição da assinatura</summary><div class="grid">
+<div><label>Largura da assinatura (cm)</label><input id="width" type="number" step="0.1" value="4.1"></div>
+<div><label>Distância da borda inferior (cm)</label><input id="bottom" type="number" step="0.1" value="8"></div>
+<div><label>Distância da borda superior (cm)</label><input id="top" type="number" step="0.1" placeholder="opcional"></div>
+<div><label>Distância da borda esquerda (cm)</label><input id="left" type="number" step="0.1" placeholder="opcional"></div>
+<div><label>Distância da borda direita (cm)</label><input id="right" type="number" step="0.1" placeholder="opcional"></div>
+</div></details>
+<button id="sign" disabled>Assinar e salvar</button>
+<div id="status"></div>
+</div>
+<script>
+const SIG='data:image/png;base64,'+window.SIG_B64;
+const $=id=>document.getElementById(id);let selected=[];
+$('files').onchange=e=>{selected=[...e.target.files];$('sign').disabled=!selected.length;$('list').innerHTML=selected.map(f=>'<div class="item">'+f.name+'</div>').join('');};
+function num(id){const v=parseFloat($(id).value);return Number.isFinite(v)?v:null}
+function dataUrlBytes(u){const b=atob(u.split(',')[1]),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a}
 async function reconstructedSignature(){const img=new Image();img.src=SIG;await img.decode();const c=document.createElement('canvas');c.width=375;c.height=666;const x=c.getContext('2d');x.clearRect(0,0,375,666);x.drawImage(img,38,295,269,105);return dataUrlBytes(c.toDataURL('image/png'));}
 async function saveBlob(blob,name,mime){if(window.Android&&Android.saveBase64){const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]);r.onerror=rej;r.readAsDataURL(blob)});Android.saveBase64(b64,mime,name);return}const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
 $('sign').onclick=async()=>{if(!selected.length)return;const btn=$('sign');btn.disabled=true;$('status').textContent='Aplicando assinatura...';try{const CM=72/2.54,wcm=Math.max(1,Math.min(12,num('width')||4.1)),bottom=num('bottom'),top=num('top'),left=num('left'),right=num('right'),sigBytes=await reconstructedSignature(),out=[];for(let i=0;i<selected.length;i++){$('status').textContent=`Assinando ${i+1} de ${selected.length}...`;const f=selected[i],bytes=new Uint8Array(await f.arrayBuffer()),pdf=await PDFLib.PDFDocument.load(bytes),img=await pdf.embedPng(sigBytes),page=pdf.getPages()[0],pw=page.getWidth(),ph=page.getHeight(),iw=wcm*CM,ih=iw*(img.height/img.width);let x=(pw-iw)/2,y=(bottom!==null?bottom:8)*CM;if(left!==null)x=left*CM;else if(right!==null)x=pw-iw-right*CM;if(top!==null)y=ph-ih-top*CM;y=Math.max(0,Math.min(ph-ih,y));x=Math.max(0,Math.min(pw-iw,x));page.drawImage(img,{x,y,width:iw,height:ih});out.push({name:f.name.replace(/\.pdf$/i,'')+'_assinado.pdf',bytes:await pdf.save()})}if(out.length===1)await saveBlob(new Blob([out[0].bytes],{type:'application/pdf'}),out[0].name,'application/pdf');else{const z=new JSZip();out.forEach(o=>z.file(o.name,o.bytes));await saveBlob(await z.generateAsync({type:'blob'}),'notas_assinadas.zip','application/zip')}$('status').textContent='Concluído. Arquivo salvo em Downloads/Assinador PDF.'}catch(e){console.error(e);$('status').textContent='Erro ao assinar: '+e.message}finally{btn.disabled=false}};
-</script></body></html>
+</script>
+</body>
+</html>
