@@ -130,7 +130,7 @@ public class MainActivity extends Activity {
                     ContentValues values = new ContentValues();
                     values.put(MediaStore.Downloads.DISPLAY_NAME, filename);
                     values.put(MediaStore.Downloads.MIME_TYPE, mimeType);
-                    values.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/Assinador PDF");
+                    values.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/Assinador PDF Lucas");
                     values.put(MediaStore.Downloads.IS_PENDING, 1);
 
                     Uri uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
@@ -145,7 +145,7 @@ public class MainActivity extends Activity {
                     values.put(MediaStore.Downloads.IS_PENDING, 0);
                     resolver.update(uri, values, null, null);
                 } else {
-                    File dir = new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "Assinador PDF");
+                    File dir = new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "Assinador PDF Lucas");
                     if (!dir.exists() && !dir.mkdirs()) {
                         throw new Exception("Falha ao criar pasta.");
                     }
@@ -157,7 +157,7 @@ public class MainActivity extends Activity {
 
                 runOnUiThread(() ->
                         Toast.makeText(MainActivity.this,
-                                "Salvo em Downloads/Assinador PDF",
+                                "Salvo em Downloads/Assinador PDF Lucas",
                                 Toast.LENGTH_LONG).show()
                 );
 
