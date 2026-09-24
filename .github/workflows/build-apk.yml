@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - master
+      - lucas-apk-build
 
 jobs:
   build:
@@ -39,5 +40,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Assinador-PDF-APK
+          name: Assinador-PDF-Lucas-APK
           path: app/build/outputs/apk/debug/app-debug.apk
