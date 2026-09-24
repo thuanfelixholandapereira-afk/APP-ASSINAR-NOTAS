@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Assinador PDF</title>
+<title>Assinador PDF - Lucas</title>
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="signature.js"></script>
@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="app">
-<h1>Assinador de PDF</h1>
+<h1>Assinador de PDF - Lucas</h1>
 <p>Selecione uma ou mais notas em PDF.</p>
 <label class="drop" for="files"><b>Toque para escolher os PDFs</b><span>Você pode selecionar vários arquivos.</span></label>
 <input id="files" type="file" accept="application/pdf" multiple>
@@ -36,7 +36,7 @@ function num(id){const v=parseFloat($(id).value);return Number.isFinite(v)?v:nul
 function dataUrlBytes(u){const b=atob(u.split(',')[1]),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a}
 async function reconstructedSignature(){const img=new Image();img.src=SIG;await img.decode();const c=document.createElement('canvas');c.width=375;c.height=666;const x=c.getContext('2d');x.clearRect(0,0,375,666);x.drawImage(img,38,295,269,105);return dataUrlBytes(c.toDataURL('image/png'));}
 async function saveBlob(blob,name,mime){if(window.Android&&Android.saveBase64){const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]);r.onerror=rej;r.readAsDataURL(blob)});Android.saveBase64(b64,mime,name);return}const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
-$('sign').onclick=async()=>{if(!selected.length)return;const btn=$('sign');btn.disabled=true;$('status').textContent='Aplicando assinatura...';try{const CM=72/2.54,wcm=Math.max(1,Math.min(12,num('width')||4.1)),bottom=num('bottom'),top=num('top'),left=num('left'),right=num('right'),sigBytes=await reconstructedSignature(),out=[];for(let i=0;i<selected.length;i++){$('status').textContent=`Assinando ${i+1} de ${selected.length}...`;const f=selected[i],bytes=new Uint8Array(await f.arrayBuffer()),pdf=await PDFLib.PDFDocument.load(bytes),img=await pdf.embedPng(sigBytes),page=pdf.getPages()[0],pw=page.getWidth(),ph=page.getHeight(),iw=wcm*CM,ih=iw*(img.height/img.width);let x=(pw-iw)/2,y=(bottom!==null?bottom:8)*CM;if(left!==null)x=left*CM;else if(right!==null)x=pw-iw-right*CM;if(top!==null)y=ph-ih-top*CM;y=Math.max(0,Math.min(ph-ih,y));x=Math.max(0,Math.min(pw-iw,x));page.drawImage(img,{x,y,width:iw,height:ih});out.push({name:f.name.replace(/\.pdf$/i,'')+'_assinado.pdf',bytes:await pdf.save()})}if(out.length===1)await saveBlob(new Blob([out[0].bytes],{type:'application/pdf'}),out[0].name,'application/pdf');else{const z=new JSZip();out.forEach(o=>z.file(o.name,o.bytes));await saveBlob(await z.generateAsync({type:'blob'}),'notas_assinadas.zip','application/zip')}$('status').textContent='Concluído. Arquivo salvo em Downloads/Assinador PDF.'}catch(e){console.error(e);$('status').textContent='Erro ao assinar: '+e.message}finally{btn.disabled=false}};
+$('sign').onclick=async()=>{if(!selected.length)return;const btn=$('sign');btn.disabled=true;$('status').textContent='Aplicando assinatura...';try{const CM=72/2.54,wcm=Math.max(1,Math.min(12,num('width')||4.1)),bottom=num('bottom'),top=num('top'),left=num('left'),right=num('right'),sigBytes=await reconstructedSignature(),out=[];for(let i=0;i<selected.length;i++){$('status').textContent=`Assinando ${i+1} de ${selected.length}...`;const f=selected[i],bytes=new Uint8Array(await f.arrayBuffer()),pdf=await PDFLib.PDFDocument.load(bytes),img=await pdf.embedPng(sigBytes),page=pdf.getPages()[0],pw=page.getWidth(),ph=page.getHeight(),iw=wcm*CM,ih=iw*(img.height/img.width);let x=(pw-iw)/2,y=(bottom!==null?bottom:8)*CM;if(left!==null)x=left*CM;else if(right!==null)x=pw-iw-right*CM;if(top!==null)y=ph-ih-top*CM;y=Math.max(0,Math.min(ph-ih,y));x=Math.max(0,Math.min(pw-iw,x));page.drawImage(img,{x,y,width:iw,height:ih});out.push({name:f.name.replace(/\.pdf$/i,'')+'_assinado.pdf',bytes:await pdf.save()})}if(out.length===1)await saveBlob(new Blob([out[0].bytes],{type:'application/pdf'}),out[0].name,'application/pdf');else{const z=new JSZip();out.forEach(o=>z.file(o.name,o.bytes));await saveBlob(await z.generateAsync({type:'blob'}),'notas_assinadas.zip','application/zip')}$('status').textContent='Concluído. Arquivo salvo em Downloads/Assinador PDF Lucas.'}catch(e){console.error(e);$('status').textContent='Erro ao assinar: '+e.message}finally{btn.disabled=false}};
 </script>
 </body>
 </html>
