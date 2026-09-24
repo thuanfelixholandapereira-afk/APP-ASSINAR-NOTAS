@@ -7,11 +7,11 @@ android {
     compileSdk 35
 
     defaultConfig {
-        applicationId "com.qrz.assinadorpdflucas"
+        applicationId "com.qrz.assinadorpdf.lucasvisual"
         minSdk 26
         targetSdk 35
-        versionCode 1
-        versionName "1.0-lucas"
+        versionCode 2
+        versionName "2.0-lucas-visual"
     }
 
     buildTypes {
