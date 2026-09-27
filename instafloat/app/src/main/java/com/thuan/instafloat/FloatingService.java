@@ -99,7 +99,7 @@ public class FloatingService extends Service {
     }
 
     private Button menuButton(String text) {
-        Button b = new Button(this); b.setText(text); b.setTextAllCaps(false); b.setTextSize(13);
+        Button b = new Button(this); b.setText(text); b.setAllCaps(false); b.setTextSize(13);
         GradientDrawable g = new GradientDrawable(); g.setColor(Color.rgb(241,241,243)); g.setCornerRadius(dp(12)); b.setBackground(g);
         LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(48)); p.topMargin = dp(7); b.setLayoutParams(p); return b;
     }
