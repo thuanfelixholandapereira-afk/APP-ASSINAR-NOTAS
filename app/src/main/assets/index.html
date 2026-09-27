@@ -2,41 +2,78 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Assinador PDF</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Assinador PDF - Thuan</title>
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="signature.js"></script>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f4f6f8;font-family:Arial,sans-serif;color:#17202a}.app{max-width:720px;margin:auto;min-height:100vh;background:#fff;padding:22px 18px}h1{font-size:24px;margin:0 0 5px}p{color:#667085;font-size:14px;margin:0 0 18px}.drop{border:2px dashed #b7c1cb;border-radius:14px;padding:36px 16px;text-align:center;background:#fafbfc;display:block;cursor:pointer}.drop b{display:block;font-size:17px;margin-bottom:7px}#files{display:none}.list{margin:16px 0;font-size:13px}.item{padding:9px 0;border-bottom:1px solid #eee;word-break:break-word}details{margin-top:14px;border:1px solid #e0e5ea;border-radius:12px;padding:12px}summary{font-weight:700;cursor:pointer}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}label{font-size:12px;color:#667085;display:block;margin-bottom:5px}input{width:100%;padding:11px;border:1px solid #d8dee4;border-radius:9px;font-size:16px}button{width:100%;border:0;border-radius:11px;padding:15px;margin-top:18px;background:#1769aa;color:#fff;font-size:16px;font-weight:700}button:disabled{opacity:.45}#status{font-size:13px;margin-top:12px;color:#667085;text-align:center}@media(max-width:520px){.grid{grid-template-columns:1fr}}
+*{box-sizing:border-box}body{margin:0;background:#eef1f5;font-family:Arial,sans-serif;color:#17202a}.app{max-width:760px;margin:auto;min-height:100vh;background:#fff;padding:18px}.top h1{font-size:23px;margin:0}.top p{margin:6px 0 16px;color:#667085;font-size:14px}.pick{display:block;border:2px dashed #b8c1cc;border-radius:14px;padding:26px 16px;text-align:center;background:#fafbfc;font-weight:700;cursor:pointer}.pick span{display:block;font-size:12px;color:#667085;font-weight:400;margin-top:6px}#file{display:none}.tools{display:none;margin-top:14px;gap:10px;grid-template-columns:1fr 1fr}.tools.show{display:grid}.field{border:1px solid #e3e7ec;border-radius:10px;padding:9px}.field label{font-size:11px;color:#667085;display:block;margin-bottom:5px}.field input,.field select{width:100%;font-size:16px;border:0;outline:0;background:transparent}.previewWrap{display:none;margin-top:14px;border:1px solid #dfe4ea;border-radius:14px;background:#d9dde3;padding:10px;overflow:auto}.previewWrap.show{display:block}.stage{position:relative;margin:auto;background:white;touch-action:none;box-shadow:0 2px 12px rgba(0,0,0,.12)}#pdfCanvas{display:block;width:100%;height:100%}#sig{position:absolute;left:50%;top:72%;transform:translate(-50%,-50%);width:34%;height:auto;cursor:grab;touch-action:none;user-select:none;-webkit-user-drag:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.12))}.hint{text-align:center;color:#667085;font-size:12px;margin:9px 0 0}.size{display:none;margin-top:13px}.size.show{display:block}.size label{font-size:12px;color:#667085}.size input{width:100%}.actions{display:none;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}.actions.show{display:grid}button{border:0;border-radius:11px;padding:14px;font-size:15px;font-weight:700}.secondary{background:#eef2f6;color:#17202a}.primary{background:#1769aa;color:white}.primary:disabled{opacity:.5}#status{text-align:center;font-size:13px;color:#667085;margin-top:12px}.name{font-size:12px;color:#475467;margin-top:10px;word-break:break-word}@media(max-width:520px){.app{padding:14px}.tools{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="app">
-<h1>Assinador de PDF</h1>
-<p>Selecione uma ou mais notas em PDF.</p>
-<label class="drop" for="files"><b>Toque para escolher os PDFs</b><span>Você pode selecionar vários arquivos.</span></label>
-<input id="files" type="file" accept="application/pdf" multiple>
-<div id="list" class="list"></div>
-<details><summary>Ajustar posição da assinatura</summary><div class="grid">
-<div><label>Largura da assinatura (cm)</label><input id="width" type="number" step="0.1" value="4.1"></div>
-<div><label>Distância da borda inferior (cm)</label><input id="bottom" type="number" step="0.1" value="8"></div>
-<div><label>Distância da borda superior (cm)</label><input id="top" type="number" step="0.1" placeholder="opcional"></div>
-<div><label>Distância da borda esquerda (cm)</label><input id="left" type="number" step="0.1" placeholder="opcional"></div>
-<div><label>Distância da borda direita (cm)</label><input id="right" type="number" step="0.1" placeholder="opcional"></div>
-</div></details>
-<button id="sign" disabled>Assinar e salvar</button>
-<div id="status"></div>
+  <div class="top"><h1>Assinador de PDF - Thuan</h1><p>Abra o PDF e arraste a assinatura exatamente para o lugar desejado.</p></div>
+  <label class="pick" for="file">Escolher PDF<span>Toque aqui para selecionar a nota.</span></label>
+  <input id="file" type="file" accept="application/pdf">
+  <div id="name" class="name"></div>
+  <div id="tools" class="tools">
+    <div class="field"><label>Página</label><select id="page"></select></div>
+    <div class="field"><label>Tamanho (%)</label><input id="sizeNum" type="number" min="10" max="80" value="34"></div>
+  </div>
+  <div id="previewWrap" class="previewWrap">
+    <div id="stage" class="stage">
+      <canvas id="pdfCanvas"></canvas>
+      <img id="sig" alt="Assinatura Thuan">
+    </div>
+    <div class="hint">Arraste a assinatura com o dedo. Use o controle abaixo para aumentar ou diminuir.</div>
+  </div>
+  <div id="sizeBox" class="size"><label>Tamanho da assinatura</label><input id="sizeRange" type="range" min="10" max="80" value="34"></div>
+  <div id="actions" class="actions">
+    <button id="center" class="secondary">Centralizar</button>
+    <button id="save" class="primary">Assinar e salvar</button>
+  </div>
+  <div id="status"></div>
 </div>
 <script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const $=id=>document.getElementById(id);
 const SIG='data:image/png;base64,'+window.SIG_B64;
-const $=id=>document.getElementById(id);let selected=[];
-$('files').onchange=e=>{selected=[...e.target.files];$('sign').disabled=!selected.length;$('list').innerHTML=selected.map(f=>'<div class="item">'+f.name+'</div>').join('');};
-function num(id){const v=parseFloat($(id).value);return Number.isFinite(v)?v:null}
-function dataUrlBytes(u){const b=atob(u.split(',')[1]),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a}
-async function reconstructedSignature(){const img=new Image();img.src=SIG;await img.decode();const c=document.createElement('canvas');c.width=375;c.height=666;const x=c.getContext('2d');x.clearRect(0,0,375,666);x.drawImage(img,38,295,269,105);return dataUrlBytes(c.toDataURL('image/png'));}
+$('sig').src=SIG;
+let file=null, raw=null, pdfPreview=null, pageCount=0, currentPage=1;
+let pos={x:.5,y:.72};
+const stage=$('stage'), sig=$('sig'), canvas=$('pdfCanvas');
+function status(t){$('status').textContent=t}
+async function readFile(f){
+  file=f; raw=new Uint8Array(await f.arrayBuffer()); $('name').textContent=f.name; status('Abrindo PDF...');
+  pdfPreview=await pdfjsLib.getDocument({data:raw.slice()}).promise; pageCount=pdfPreview.numPages;
+  $('page').innerHTML=''; for(let i=1;i<=pageCount;i++){let o=document.createElement('option');o.value=i;o.textContent='Página '+i;$('page').appendChild(o)}
+  $('tools').classList.add('show'); $('previewWrap').classList.add('show'); $('sizeBox').classList.add('show'); $('actions').classList.add('show');
+  currentPage=1; pos={x:.5,y:.72}; await render(); status('Arraste a assinatura para o local desejado.');
+}
+$('file').onchange=e=>{if(e.target.files[0]) readFile(e.target.files[0]).catch(err=>{console.error(err);status('Não foi possível abrir o PDF.')})};
+async function render(){
+  const p=await pdfPreview.getPage(currentPage); const base=p.getViewport({scale:1});
+  const maxW=Math.min(680, Math.max(280, window.innerWidth-48)); const scale=maxW/base.width; const vp=p.getViewport({scale});
+  canvas.width=Math.round(vp.width); canvas.height=Math.round(vp.height); stage.style.width=canvas.width+'px'; stage.style.height=canvas.height+'px';
+  await p.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise; applyPos();
+}
+function applyPos(){const w=stage.clientWidth,h=stage.clientHeight;sig.style.left=(pos.x*w)+'px';sig.style.top=(pos.y*h)+'px'}
+$('page').onchange=async e=>{currentPage=+e.target.value;pos={x:.5,y:.72};await render()};
+function setSize(v){v=Math.max(10,Math.min(80,+v||34));$('sizeRange').value=v;$('sizeNum').value=v;sig.style.width=v+'%'}
+$('sizeRange').oninput=e=>setSize(e.target.value);$('sizeNum').oninput=e=>setSize(e.target.value);setSize(34);
+$('center').onclick=()=>{pos={x:.5,y:.72};applyPos()};
+let dragging=false,offX=0,offY=0;
+function startDrag(clientX,clientY){const sr=sig.getBoundingClientRect();dragging=true;offX=clientX-(sr.left+sr.width/2);offY=clientY-(sr.top+sr.height/2);sig.style.cursor='grabbing'}
+function moveDrag(clientX,clientY){if(!dragging)return;const r=stage.getBoundingClientRect(),sw=sig.offsetWidth,sh=sig.offsetHeight;let cx=clientX-r.left-offX,cy=clientY-r.top-offY;cx=Math.max(sw/2,Math.min(r.width-sw/2,cx));cy=Math.max(sh/2,Math.min(r.height-sh/2,cy));pos.x=cx/r.width;pos.y=cy/r.height;applyPos()}
+function endDrag(){dragging=false;sig.style.cursor='grab'}
+sig.addEventListener('pointerdown',e=>{sig.setPointerCapture(e.pointerId);startDrag(e.clientX,e.clientY);e.preventDefault()});
+sig.addEventListener('pointermove',e=>{moveDrag(e.clientX,e.clientY);e.preventDefault()});sig.addEventListener('pointerup',endDrag);sig.addEventListener('pointercancel',endDrag);
+stage.addEventListener('pointerdown',e=>{if(e.target!==sig){const r=stage.getBoundingClientRect(),sw=sig.offsetWidth,sh=sig.offsetHeight;let cx=e.clientX-r.left,cy=e.clientY-r.top;cx=Math.max(sw/2,Math.min(r.width-sw/2,cx));cy=Math.max(sh/2,Math.min(r.height-sh/2,cy));pos={x:cx/r.width,y:cy/r.height};applyPos()}});
+function dataBytes(u){const b=atob(u.split(',')[1]),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a}
 async function saveBlob(blob,name,mime){if(window.Android&&Android.saveBase64){const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]);r.onerror=rej;r.readAsDataURL(blob)});Android.saveBase64(b64,mime,name);return}const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
-$('sign').onclick=async()=>{if(!selected.length)return;const btn=$('sign');btn.disabled=true;$('status').textContent='Aplicando assinatura...';try{const CM=72/2.54,wcm=Math.max(1,Math.min(12,num('width')||4.1)),bottom=num('bottom'),top=num('top'),left=num('left'),right=num('right'),sigBytes=await reconstructedSignature(),out=[];for(let i=0;i<selected.length;i++){$('status').textContent=`Assinando ${i+1} de ${selected.length}...`;const f=selected[i],bytes=new Uint8Array(await f.arrayBuffer()),pdf=await PDFLib.PDFDocument.load(bytes),img=await pdf.embedPng(sigBytes),page=pdf.getPages()[0],pw=page.getWidth(),ph=page.getHeight(),iw=wcm*CM,ih=iw*(img.height/img.width);let x=(pw-iw)/2,y=(bottom!==null?bottom:8)*CM;if(left!==null)x=left*CM;else if(right!==null)x=pw-iw-right*CM;if(top!==null)y=ph-ih-top*CM;y=Math.max(0,Math.min(ph-ih,y));x=Math.max(0,Math.min(pw-iw,x));page.drawImage(img,{x,y,width:iw,height:ih});out.push({name:f.name.replace(/\.pdf$/i,'')+'_assinado.pdf',bytes:await pdf.save()})}if(out.length===1)await saveBlob(new Blob([out[0].bytes],{type:'application/pdf'}),out[0].name,'application/pdf');else{const z=new JSZip();out.forEach(o=>z.file(o.name,o.bytes));await saveBlob(await z.generateAsync({type:'blob'}),'notas_assinadas.zip','application/zip')}$('status').textContent='Concluído. Arquivo salvo em Downloads/Assinador PDF.'}catch(e){console.error(e);$('status').textContent='Erro ao assinar: '+e.message}finally{btn.disabled=false}};
+$('save').onclick=async()=>{if(!file)return;try{$('save').disabled=true;status('Aplicando assinatura...');const doc=await PDFLib.PDFDocument.load(raw.slice());const page=doc.getPages()[currentPage-1];const img=await doc.embedPng(dataBytes(SIG));const pw=page.getWidth(),ph=page.getHeight();const percent=+($('sizeRange').value)/100;const iw=pw*percent,ih=iw*(img.height/img.width);let x=pos.x*pw-iw/2;let y=ph-(pos.y*ph)-ih/2;x=Math.max(0,Math.min(pw-iw,x));y=Math.max(0,Math.min(ph-ih,y));page.drawImage(img,{x,y,width:iw,height:ih});const out=await doc.save();const name=file.name.replace(/\.pdf$/i,'')+'_assinado_Thuan.pdf';await saveBlob(new Blob([out],{type:'application/pdf'}),name,'application/pdf');status('Concluído. PDF assinado e salvo.')}catch(e){console.error(e);status('Erro ao assinar: '+e.message)}finally{$('save').disabled=false}};
+window.addEventListener('resize',()=>{if(pdfPreview)render()});
 </script>
 </body>
 </html>
