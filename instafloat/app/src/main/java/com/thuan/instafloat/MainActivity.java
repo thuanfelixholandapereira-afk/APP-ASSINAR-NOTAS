@@ -186,7 +186,7 @@ public class MainActivity extends Activity {
 
     private Button button(String label, boolean dark) {
         Button b = new Button(this);
-        b.setText(label); b.setTextAllCaps(false); b.setTextSize(14); b.setMinHeight(dp(50));
+        b.setText(label); b.setAllCaps(false); b.setTextSize(14); b.setMinHeight(dp(50));
         GradientDrawable g = new GradientDrawable();
         g.setColor(dark ? Color.rgb(20,20,22) : Color.rgb(238,238,241)); g.setCornerRadius(dp(14)); b.setBackground(g);
         if (dark) b.setTextColor(Color.WHITE);
