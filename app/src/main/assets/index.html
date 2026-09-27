@@ -1,79 +1,29 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>Assinador PDF - Thuan</title>
-<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="signature.js"></script>
-<style>
-*{box-sizing:border-box}body{margin:0;background:#eef1f5;font-family:Arial,sans-serif;color:#17202a}.app{max-width:760px;margin:auto;min-height:100vh;background:#fff;padding:18px}.top h1{font-size:23px;margin:0}.top p{margin:6px 0 16px;color:#667085;font-size:14px}.pick{display:block;border:2px dashed #b8c1cc;border-radius:14px;padding:26px 16px;text-align:center;background:#fafbfc;font-weight:700;cursor:pointer}.pick span{display:block;font-size:12px;color:#667085;font-weight:400;margin-top:6px}#file{display:none}.tools{display:none;margin-top:14px;gap:10px;grid-template-columns:1fr 1fr}.tools.show{display:grid}.field{border:1px solid #e3e7ec;border-radius:10px;padding:9px}.field label{font-size:11px;color:#667085;display:block;margin-bottom:5px}.field input,.field select{width:100%;font-size:16px;border:0;outline:0;background:transparent}.previewWrap{display:none;margin-top:14px;border:1px solid #dfe4ea;border-radius:14px;background:#d9dde3;padding:10px;overflow:auto}.previewWrap.show{display:block}.stage{position:relative;margin:auto;background:white;touch-action:none;box-shadow:0 2px 12px rgba(0,0,0,.12)}#pdfCanvas{display:block;width:100%;height:100%}#sig{position:absolute;left:50%;top:72%;transform:translate(-50%,-50%);width:34%;height:auto;cursor:grab;touch-action:none;user-select:none;-webkit-user-drag:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.12))}.hint{text-align:center;color:#667085;font-size:12px;margin:9px 0 0}.size{display:none;margin-top:13px}.size.show{display:block}.size label{font-size:12px;color:#667085}.size input{width:100%}.actions{display:none;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}.actions.show{display:grid}button{border:0;border-radius:11px;padding:14px;font-size:15px;font-weight:700}.secondary{background:#eef2f6;color:#17202a}.primary{background:#1769aa;color:white}.primary:disabled{opacity:.5}#status{text-align:center;font-size:13px;color:#667085;margin-top:12px}.name{font-size:12px;color:#475467;margin-top:10px;word-break:break-word}@media(max-width:520px){.app{padding:14px}.tools{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr}}
-</style>
-</head>
-<body>
-<div class="app">
-  <div class="top"><h1>Assinador de PDF - Thuan</h1><p>Abra o PDF e arraste a assinatura exatamente para o lugar desejado.</p></div>
-  <label class="pick" for="file">Escolher PDF<span>Toque aqui para selecionar a nota.</span></label>
-  <input id="file" type="file" accept="application/pdf">
-  <div id="name" class="name"></div>
-  <div id="tools" class="tools">
-    <div class="field"><label>Página</label><select id="page"></select></div>
-    <div class="field"><label>Tamanho (%)</label><input id="sizeNum" type="number" min="10" max="80" value="34"></div>
-  </div>
-  <div id="previewWrap" class="previewWrap">
-    <div id="stage" class="stage">
-      <canvas id="pdfCanvas"></canvas>
-      <img id="sig" alt="Assinatura Thuan">
-    </div>
-    <div class="hint">Arraste a assinatura com o dedo. Use o controle abaixo para aumentar ou diminuir.</div>
-  </div>
-  <div id="sizeBox" class="size"><label>Tamanho da assinatura</label><input id="sizeRange" type="range" min="10" max="80" value="34"></div>
-  <div id="actions" class="actions">
-    <button id="center" class="secondary">Centralizar</button>
-    <button id="save" class="primary">Assinar e salvar</button>
-  </div>
-  <div id="status"></div>
-</div>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Assinador de PDF</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script><script src="signature.js"></script>
+<style>*{box-sizing:border-box}body{margin:0;background:#eef2f6;font:14px Arial;color:#182230}.app{padding:14px}.panel{background:#fff;border-radius:14px;padding:12px}.top{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.btn,.pick{border:0;border-radius:9px;padding:11px 13px;font-weight:700;cursor:pointer}.blue{background:#1769aa;color:#fff}.light{background:#eef3f8;color:#183b56}.red{background:#fff1f1;color:#b42318}.btn:disabled{opacity:.45}.pick input{display:none}.format{display:flex;gap:8px;align-items:center}.format input[type=number]{width:64px;padding:8px}.format input[type=color]{width:40px;height:36px;padding:2px}.wrap{background:#cfd6df;border-radius:10px;margin-top:12px;padding:12px;overflow:auto;min-height:360px;display:flex;justify-content:center}.stage{position:relative;display:inline-block;line-height:0;touch-action:none;user-select:none}.stage canvas{display:block;background:#fff;max-width:100%;height:auto;box-shadow:0 4px 16px #0002}.sig{position:absolute;display:none;border:1px dashed #1769aa;cursor:grab;touch-action:none}.sig img{width:100%;height:100%;object-fit:contain;pointer-events:none;opacity:.85}.handle{position:absolute;right:-9px;bottom:-9px;width:18px;height:18px;border-radius:50%;background:#1769aa;border:2px solid #fff}.txt{position:absolute;padding:2px 4px;white-space:pre-wrap;word-break:break-word;max-width:80%;line-height:1.15;border:1px dashed #1769aa;background:#ffffff33;cursor:grab;touch-action:none;user-select:none}.txt.sel{border:2px solid #1769aa;background:#1769aa12}.status{margin-top:10px;padding:9px;background:#f8fafc;border-radius:9px;color:#475467}.files{font-size:12px;color:#667085;margin-top:6px}.modal{position:fixed;inset:0;background:#0007;display:none;align-items:center;justify-content:center;padding:16px;z-index:99}.modal.on{display:flex}.card{background:#fff;border-radius:14px;padding:14px;width:min(520px,100%)}.card textarea{width:100%;min-height:150px;padding:10px;border:1px solid #ccd5df;border-radius:9px;font:16px Arial;resize:vertical}.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}h1{font-size:22px;margin:0 0 5px}.sub{color:#667085;margin-bottom:12px}@media(max-width:600px){.app{padding:8px}.panel{padding:10px}.top{gap:6px}.btn,.pick{padding:10px}.wrap{padding:6px}}
+</style></head><body><div class="app"><h1>Assinador de PDF - Thuan</h1><div class="sub">Arraste a assinatura ou insira textos diretamente sobre o PDF.</div><div class="panel"><div class="top"><label class="pick blue">Selecionar PDF(s)<input id="files" type="file" accept="application/pdf" multiple></label><button id="center" class="btn light" disabled>Centralizar</button><button id="reset" class="btn light" disabled>Restaurar 5 cm</button><button id="addText" class="btn light" disabled>Inserir texto</button><div class="format"><label>Tamanho <input id="fontSize" type="number" min="8" max="72" value="18"></label><label>Cor <input id="fontColor" type="color" value="#111111"></label></div><button id="save" class="btn blue" disabled>Assinar e baixar</button><button id="clear" class="btn red" disabled>Limpar</button></div><div class="wrap"><div id="stage" class="stage"><canvas id="cv"></canvas><div id="sig" class="sig"><img id="sigImg"><div id="handle" class="handle"></div></div></div></div><div id="status" class="status">Selecione um PDF para começar.</div><div id="fileList" class="files"></div></div></div>
+<div id="modal" class="modal"><div class="card"><h3 id="modalTitle">Inserir texto</h3><textarea id="textInput" placeholder="Digite o texto. Pressione Enter para quebrar a linha."></textarea><div class="actions"><button id="cancelText" class="btn light">Cancelar</button><button id="okText" class="btn blue">Inserir</button></div></div></div>
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-const $=id=>document.getElementById(id);
-const SIG='data:image/png;base64,'+window.SIG_B64;
-$('sig').src=SIG;
-let file=null, raw=null, pdfPreview=null, pageCount=0, currentPage=1;
-let pos={x:.5,y:.72};
-const stage=$('stage'), sig=$('sig'), canvas=$('pdfCanvas');
-function status(t){$('status').textContent=t}
-async function readFile(f){
-  file=f; raw=new Uint8Array(await f.arrayBuffer()); $('name').textContent=f.name; status('Abrindo PDF...');
-  pdfPreview=await pdfjsLib.getDocument({data:raw.slice()}).promise; pageCount=pdfPreview.numPages;
-  $('page').innerHTML=''; for(let i=1;i<=pageCount;i++){let o=document.createElement('option');o.value=i;o.textContent='Página '+i;$('page').appendChild(o)}
-  $('tools').classList.add('show'); $('previewWrap').classList.add('show'); $('sizeBox').classList.add('show'); $('actions').classList.add('show');
-  currentPage=1; pos={x:.5,y:.72}; await render(); status('Arraste a assinatura para o local desejado.');
-}
-$('file').onchange=e=>{if(e.target.files[0]) readFile(e.target.files[0]).catch(err=>{console.error(err);status('Não foi possível abrir o PDF.')})};
-async function render(){
-  const p=await pdfPreview.getPage(currentPage); const base=p.getViewport({scale:1});
-  const maxW=Math.min(680, Math.max(280, window.innerWidth-48)); const scale=maxW/base.width; const vp=p.getViewport({scale});
-  canvas.width=Math.round(vp.width); canvas.height=Math.round(vp.height); stage.style.width=canvas.width+'px'; stage.style.height=canvas.height+'px';
-  await p.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise; applyPos();
-}
-function applyPos(){const w=stage.clientWidth,h=stage.clientHeight;sig.style.left=(pos.x*w)+'px';sig.style.top=(pos.y*h)+'px'}
-$('page').onchange=async e=>{currentPage=+e.target.value;pos={x:.5,y:.72};await render()};
-function setSize(v){v=Math.max(10,Math.min(80,+v||34));$('sizeRange').value=v;$('sizeNum').value=v;sig.style.width=v+'%'}
-$('sizeRange').oninput=e=>setSize(e.target.value);$('sizeNum').oninput=e=>setSize(e.target.value);setSize(34);
-$('center').onclick=()=>{pos={x:.5,y:.72};applyPos()};
-let dragging=false,offX=0,offY=0;
-function startDrag(clientX,clientY){const sr=sig.getBoundingClientRect();dragging=true;offX=clientX-(sr.left+sr.width/2);offY=clientY-(sr.top+sr.height/2);sig.style.cursor='grabbing'}
-function moveDrag(clientX,clientY){if(!dragging)return;const r=stage.getBoundingClientRect(),sw=sig.offsetWidth,sh=sig.offsetHeight;let cx=clientX-r.left-offX,cy=clientY-r.top-offY;cx=Math.max(sw/2,Math.min(r.width-sw/2,cx));cy=Math.max(sh/2,Math.min(r.height-sh/2,cy));pos.x=cx/r.width;pos.y=cy/r.height;applyPos()}
-function endDrag(){dragging=false;sig.style.cursor='grab'}
-sig.addEventListener('pointerdown',e=>{sig.setPointerCapture(e.pointerId);startDrag(e.clientX,e.clientY);e.preventDefault()});
-sig.addEventListener('pointermove',e=>{moveDrag(e.clientX,e.clientY);e.preventDefault()});sig.addEventListener('pointerup',endDrag);sig.addEventListener('pointercancel',endDrag);
-stage.addEventListener('pointerdown',e=>{if(e.target!==sig){const r=stage.getBoundingClientRect(),sw=sig.offsetWidth,sh=sig.offsetHeight;let cx=e.clientX-r.left,cy=e.clientY-r.top;cx=Math.max(sw/2,Math.min(r.width-sw/2,cx));cy=Math.max(sh/2,Math.min(r.height-sh/2,cy));pos={x:cx/r.width,y:cy/r.height};applyPos()}});
-function dataBytes(u){const b=atob(u.split(',')[1]),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a}
-async function saveBlob(blob,name,mime){if(window.Android&&Android.saveBase64){const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]);r.onerror=rej;r.readAsDataURL(blob)});Android.saveBase64(b64,mime,name);return}const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
-$('save').onclick=async()=>{if(!file)return;try{$('save').disabled=true;status('Aplicando assinatura...');const doc=await PDFLib.PDFDocument.load(raw.slice());const page=doc.getPages()[currentPage-1];const img=await doc.embedPng(dataBytes(SIG));const pw=page.getWidth(),ph=page.getHeight();const percent=+($('sizeRange').value)/100;const iw=pw*percent,ih=iw*(img.height/img.width);let x=pos.x*pw-iw/2;let y=ph-(pos.y*ph)-ih/2;x=Math.max(0,Math.min(pw-iw,x));y=Math.max(0,Math.min(ph-ih,y));page.drawImage(img,{x,y,width:iw,height:ih});const out=await doc.save();const name=file.name.replace(/\.pdf$/i,'')+'_assinado_Thuan.pdf';await saveBlob(new Blob([out],{type:'application/pdf'}),name,'application/pdf');status('Concluído. PDF assinado e salvo.')}catch(e){console.error(e);status('Erro ao assinar: '+e.message)}finally{$('save').disabled=false}};
-window.addEventListener('resize',()=>{if(pdfPreview)render()});
-</script>
-</body>
-</html>
+const $=x=>document.getElementById(x),files=$('files'),cv=$('cv'),ctx=cv.getContext('2d'),stage=$('stage'),sig=$('sig'),sigImg=$('sigImg'),handle=$('handle'),center=$('center'),reset=$('reset'),addText=$('addText'),fontSize=$('fontSize'),fontColor=$('fontColor'),save=$('save'),clear=$('clear'),status=$('status'),fileList=$('fileList'),modal=$('modal'),modalTitle=$('modalTitle'),textInput=$('textInput'),cancelText=$('cancelText'),okText=$('okText');
+if(window.SIG_B64)sigImg.src='data:image/png;base64,'+window.SIG_B64;
+let selected=[],pagePt={w:595,h:842},aspect=2.5,drag=null,resize=false,start={},texts=[],active=null;const CM=72/2.54,clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function pos(e){let r=stage.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+function sigSize(){let w=clamp((5*CM/pagePt.w)*stage.clientWidth,90,stage.clientWidth*.65);sig.style.width=w+'px';sig.style.height=w/aspect+'px'}
+function centerSig(){sig.style.left=Math.max(0,(stage.clientWidth-sig.offsetWidth)/2)+'px';sig.style.top=Math.max(0,(stage.clientHeight-sig.offsetHeight)/2)+'px'}
+function resetSig(){sigSize();centerSig()}
+function enable(v){[center,reset,addText,save,clear].forEach(b=>b.disabled=!v)}
+function deselect(){texts.forEach(t=>t.classList.remove('sel'));active=null}
+function wipeTexts(){texts.forEach(t=>t.remove());texts=[];active=null}
+function dialog(value='',title='Inserir texto',label='Inserir'){return new Promise(res=>{modalTitle.textContent=title;okText.textContent=label;textInput.value=value;modal.classList.add('on');setTimeout(()=>textInput.focus(),0);let done=v=>{modal.classList.remove('on');okText.onclick=cancelText.onclick=null;res(v)};okText.onclick=()=>done(textInput.value);cancelText.onclick=()=>done(null)})}
+function addTxt(v){if(!v||!v.trim())return;let t=document.createElement('div');t.className='txt sel';t.textContent=t.dataset.text=v.trim();t.style.fontSize=clamp(+fontSize.value||18,8,72)+'px';t.style.color=t.dataset.color=fontColor.value;stage.appendChild(t);t.style.left=Math.max(0,(stage.clientWidth-t.offsetWidth)/2)+'px';t.style.top=Math.max(0,(stage.clientHeight-t.offsetHeight)/2)+'px';texts.push(t);deselect();t.classList.add('sel');active=t;t.onpointerdown=e=>{deselect();active=t;t.classList.add('sel');let p=pos(e);drag={type:'text',el:t,x:p.x,y:p.y,l:parseFloat(t.style.left)||0,tp:parseFloat(t.style.top)||0};e.stopPropagation();e.preventDefault()};t.onclick=e=>{deselect();active=t;t.classList.add('sel');fontSize.value=Math.round(parseFloat(getComputedStyle(t).fontSize)||18);fontColor.value=t.dataset.color||'#111111';e.stopPropagation()};t.ondblclick=async e=>{e.stopPropagation();let n=await dialog(t.dataset.text||t.textContent,'Editar texto','Salvar');if(n!==null&&n.trim())t.textContent=t.dataset.text=n.trim()};status.textContent='Texto inserido. Arraste para a posição desejada.'}
+async function preview(f){wipeTexts();status.textContent='Abrindo prévia...';let data=await f.arrayBuffer(),pdf=await pdfjsLib.getDocument({data}).promise,p=await pdf.getPage(1),base=p.getViewport({scale:1});pagePt={w:base.width,h:base.height};let max=Math.min(900,$('stage').parentElement.clientWidth-12),scale=clamp(max/base.width,.45,1.8),vp=p.getViewport({scale});cv.width=Math.floor(vp.width);cv.height=Math.floor(vp.height);cv.style.width=vp.width+'px';cv.style.height=vp.height+'px';stage.style.width=vp.width+'px';stage.style.height=vp.height+'px';await p.render({canvasContext:ctx,viewport:vp}).promise;await sigImg.decode().catch(()=>{});if(sigImg.naturalWidth)aspect=sigImg.naturalWidth/sigImg.naturalHeight;sig.style.display='block';resetSig();enable(true);status.textContent='Prévia pronta. Posicione a assinatura e os textos.'}
+files.onchange=async e=>{selected=[...e.target.files];fileList.innerHTML=selected.map((f,i)=>(i+1)+'. '+f.name).join('<br>');if(selected.length)try{await preview(selected[0])}catch(err){status.textContent='Erro ao abrir PDF: '+err.message}};
+sig.onpointerdown=e=>{if(e.target===handle)return;let p=pos(e);drag={type:'sig',x:p.x,y:p.y,l:parseFloat(sig.style.left)||0,tp:parseFloat(sig.style.top)||0};e.preventDefault()};handle.onpointerdown=e=>{let p=pos(e);resize=true;start={x:p.x,w:sig.offsetWidth};e.stopPropagation();e.preventDefault()};
+window.onpointermove=e=>{let p=pos(e);if(drag){let el=drag.type==='sig'?sig:drag.el,w=el.offsetWidth,h=el.offsetHeight;el.style.left=clamp(drag.l+p.x-drag.x,0,Math.max(0,stage.clientWidth-w))+'px';el.style.top=clamp(drag.tp+p.y-drag.y,0,Math.max(0,stage.clientHeight-h))+'px'}if(resize){let l=parseFloat(sig.style.left)||0,w=clamp(start.w+p.x-start.x,70,stage.clientWidth-l),h=w/aspect;if(h>stage.clientHeight-(parseFloat(sig.style.top)||0)){h=stage.clientHeight-(parseFloat(sig.style.top)||0);w=h*aspect}sig.style.width=w+'px';sig.style.height=h+'px'}};window.onpointerup=()=>{drag=null;resize=false};
+center.onclick=centerSig;reset.onclick=resetSig;addText.onclick=async()=>{let v=await dialog();if(v!==null)addTxt(v)};fontSize.oninput=()=>{if(active)active.style.fontSize=clamp(+fontSize.value||18,8,72)+'px'};fontColor.oninput=()=>{if(active){active.style.color=active.dataset.color=fontColor.value}};stage.onclick=e=>{if(e.target===stage||e.target===cv)deselect()};
+clear.onclick=()=>{selected=[];files.value='';fileList.innerHTML='';wipeTexts();sig.style.display='none';cv.width=cv.height=0;stage.style.width=stage.style.height='';enable(false);status.textContent='Selecione um PDF para começar.'};
+function imgBytes(){let raw=atob(sigImg.src.split(',')[1]),a=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)a[i]=raw.charCodeAt(i);return a}
+async function outBlob(blob,name){if(window.Android&&Android.saveBase64){let b64=await new Promise((ok,no)=>{let r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]);r.onerror=no;r.readAsDataURL(blob)});Android.saveBase64(b64,name.endsWith('.zip')?'application/zip':'application/pdf',name);return}let u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
+save.onclick=async()=>{if(!selected.length)return;save.disabled=true;try{let sw=stage.clientWidth,sh=stage.clientHeight,sx=(parseFloat(sig.style.left)||0)/sw,sy=(parseFloat(sig.style.top)||0)/sh,swr=sig.offsetWidth/sw,layout=texts.map(t=>({text:t.dataset.text||t.textContent,x:(parseFloat(t.style.left)||0)/sw,y:(parseFloat(t.style.top)||0)/sh,size:(parseFloat(getComputedStyle(t).fontSize)||18)/sw,color:t.dataset.color||'#111111'})),outs=[],sb=imgBytes();for(let i=0;i<selected.length;i++){status.textContent='Processando '+(i+1)+' de '+selected.length+'...';let f=selected[i],pdf=await PDFLib.PDFDocument.load(new Uint8Array(await f.arrayBuffer())),im=await pdf.embedPng(sb),pg=pdf.getPages()[0],pw=pg.getWidth(),ph=pg.getHeight(),iw=swr*pw,ih=iw/aspect,x=clamp(sx*pw,0,pw-iw),y=clamp(ph-sy*ph-ih,0,ph-ih);pg.drawImage(im,{x,y,width:iw,height:ih});if(layout.length){let font=await pdf.embedFont(PDFLib.StandardFonts.Helvetica);for(let t of layout){let fs=Math.max(6,t.size*pw),tx=clamp(t.x*pw,0,pw-5),ty=clamp(ph-t.y*ph-fs,0,ph-fs),h=t.color.replace('#',''),c=PDFLib.rgb(parseInt(h.slice(0,2),16)/255,parseInt(h.slice(2,4),16)/255,parseInt(h.slice(4,6),16)/255),lines=String(t.text).split(/\r?\n/);for(let j=0;j<lines.length;j++){let ly=ty-j*fs*1.2;if(ly<0)break;pg.drawText(lines[j]||' ',{x:tx,y:ly,size:fs,font,color:c})}}}outs.push({name:f.name.replace(/\.pdf$/i,'')+'_assinado_Thuan.pdf',bytes:await pdf.save()})}if(outs.length===1)await outBlob(new Blob([outs[0].bytes],{type:'application/pdf'}),outs[0].name);else{let z=new JSZip();outs.forEach(o=>z.file(o.name,o.bytes));await outBlob(await z.generateAsync({type:'blob'}),'pdfs_assinados_Thuan.zip')}status.textContent='Concluído. Arquivo salvo.'}catch(err){console.error(err);status.textContent='Erro: '+err.message}finally{save.disabled=false}};
+</script></body></html>
