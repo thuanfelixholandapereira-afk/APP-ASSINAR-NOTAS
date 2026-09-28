@@ -3,7 +3,6 @@ package com.thuan.instafloat;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -27,7 +26,6 @@ import java.util.regex.Pattern;
 
 public class MainActivity extends Activity {
     private TextView overlayStatus;
-    private TextView accessibilityStatus;
     private TextView actionStatus;
     private Button downloadButton;
     private MediaResolver.Result current;
@@ -59,22 +57,16 @@ public class MainActivity extends Activity {
         scroll.addView(root);
 
         root.addView(text("Insta Float", 30, true, Color.rgb(20,20,22)));
-        root.addView(text("Bolha flutuante para capturar o link do conteúdo aberto no Instagram e salvar a mídia pública.", 15, false, Color.rgb(92,92,99)), gap(8));
+        root.addView(text("Versão segura de teste: sem Acessibilidade. Recebe links compartilhados pelo Instagram e mantém a bolha flutuante.", 15, false, Color.rgb(92,92,99)), gap(8));
 
         LinearLayout setup = card();
         root.addView(setup, gap(22));
         setup.addView(text("Configuração", 18, true, Color.rgb(25,25,27)));
         overlayStatus = text("", 14, false, Color.DKGRAY);
         setup.addView(overlayStatus, gap(12));
-        Button overlay = button("1. Permitir bolha sobre outros apps", false);
+        Button overlay = button("Permitir bolha sobre outros apps", false);
         setup.addView(overlay, gap(8));
         overlay.setOnClickListener(v -> openOverlaySettings());
-
-        accessibilityStatus = text("", 14, false, Color.DKGRAY);
-        setup.addView(accessibilityStatus, gap(15));
-        Button accessibility = button("2. Ativar leitura do Instagram", false);
-        setup.addView(accessibility, gap(8));
-        accessibility.setOnClickListener(v -> startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
 
         Button start = button("Ativar bolha flutuante", true);
         root.addView(start, gap(18));
@@ -86,8 +78,8 @@ public class MainActivity extends Activity {
 
         LinearLayout content = card();
         root.addView(content, gap(22));
-        content.addView(text("Conteúdo atual", 18, true, Color.rgb(25,25,27)));
-        actionStatus = text("Abra um Reel, publicação ou Story e toque na bolha.", 14, false, Color.rgb(92,92,99));
+        content.addView(text("Baixar do Instagram", 18, true, Color.rgb(25,25,27)));
+        actionStatus = text("No Instagram, toque em Compartilhar e escolha Insta Float. Também dá para copiar o link e usar o botão abaixo.", 14, false, Color.rgb(92,92,99));
         content.addView(actionStatus, gap(10));
         downloadButton = button("Baixar", true);
         downloadButton.setVisibility(View.GONE);
@@ -97,7 +89,7 @@ public class MainActivity extends Activity {
         content.addView(clipboard, gap(9));
         clipboard.setOnClickListener(v -> readClipboard());
 
-        root.addView(text("Sem login: o app não solicita nem armazena sua senha. Conteúdo privado continua sujeito às permissões do Instagram.", 12, false, Color.rgb(120,120,126)), gap(18));
+        root.addView(text("Sem login e sem serviço de Acessibilidade nesta versão. Conteúdo privado continua sujeito às permissões do Instagram.", 12, false, Color.rgb(120,120,126)), gap(18));
         setContentView(scroll);
     }
 
@@ -170,9 +162,6 @@ public class MainActivity extends Activity {
 
     private void refreshStatus() {
         overlayStatus.setText((Build.VERSION.SDK_INT < 23 || Settings.canDrawOverlays(this)) ? "✓ Bolha autorizada" : "• Bolha ainda não autorizada");
-        String enabled = Settings.Secure.getString(getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
-        String component = new ComponentName(this, InstaAccessibilityService.class).flattenToString();
-        accessibilityStatus.setText(enabled != null && enabled.toLowerCase().contains(component.toLowerCase()) ? "✓ Leitura ativada" : "• Leitura ainda não ativada");
     }
 
     private LinearLayout card() {
