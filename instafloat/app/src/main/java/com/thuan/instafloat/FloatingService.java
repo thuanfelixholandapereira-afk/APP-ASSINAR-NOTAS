@@ -21,8 +21,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class FloatingService extends Service {
-    public static final String ACTION_SHOW_BUBBLE = "com.thuan.instafloat.SHOW_BUBBLE";
-
     private WindowManager wm;
     private TextView bubble;
     private WindowManager.LayoutParams bubbleParams;
@@ -37,9 +35,6 @@ public class FloatingService extends Service {
     }
 
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && ACTION_SHOW_BUBBLE.equals(intent.getAction()) && bubble != null) {
-            bubble.setVisibility(View.VISIBLE);
-        }
         return START_STICKY;
     }
 
@@ -56,7 +51,7 @@ public class FloatingService extends Service {
         PendingIntent pi = PendingIntent.getActivity(this, 1, open, flags);
         Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(this, channelId) : new Notification.Builder(this);
         b.setContentTitle("Insta Float ativo")
-                .setContentText("Toque na bolha para capturar o conteúdo atual")
+                .setContentText("Compartilhe o Story, Reel ou post com o Insta Float")
                 .setSmallIcon(android.R.drawable.stat_sys_download)
                 .setOngoing(true)
                 .setContentIntent(pi);
@@ -131,16 +126,22 @@ public class FloatingService extends Service {
         title.setPadding(dp(4), 0, dp(4), dp(8));
         box.addView(title);
 
-        Button capture = menuButton("📷 Capturar Story / tela");
-        box.addView(capture);
-        capture.setOnClickListener(v -> startCapture());
-
-        Button open = menuButton("Abrir aplicativo");
-        box.addView(open);
-        open.setOnClickListener(v -> {
+        Button clipboard = menuButton("↓ Baixar link copiado");
+        box.addView(clipboard);
+        clipboard.setOnClickListener(v -> {
             removePanel();
             Intent i = new Intent(this, MainActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            i.putExtra("process_clipboard", true);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(i);
+        });
+
+        Button help = menuButton("Como baixar o original");
+        box.addView(help);
+        help.setOnClickListener(v -> {
+            removePanel();
+            Intent i = new Intent(this, MainActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(i);
         });
 
@@ -154,14 +155,6 @@ public class FloatingService extends Service {
         p.y = bubbleParams.y + dp(62);
         panel = box;
         wm.addView(panel, p);
-    }
-
-    private void startCapture() {
-        removePanel();
-        if (bubble != null) bubble.setVisibility(View.INVISIBLE);
-        Intent i = new Intent(this, CaptureActivity.class);
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        startActivity(i);
     }
 
     private Button menuButton(String text) {
