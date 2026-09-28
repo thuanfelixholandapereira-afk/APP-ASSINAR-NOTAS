@@ -57,7 +57,7 @@ public class MainActivity extends Activity {
         scroll.addView(root);
 
         root.addView(text("Insta Float", 30, true, Color.rgb(20,20,22)));
-        root.addView(text("Versão segura de teste: sem Acessibilidade. Recebe links compartilhados pelo Instagram e mantém a bolha flutuante.", 15, false, Color.rgb(92,92,99)), gap(8));
+        root.addView(text("Use a bolha sobre o Instagram para capturar o Story/tela atual. A imagem é salva em Pictures/InstaFloat. Para Reels e posts públicos, você também pode compartilhar o link com o app.", 15, false, Color.rgb(92,92,99)), gap(8));
 
         LinearLayout setup = card();
         root.addView(setup, gap(22));
@@ -78,7 +78,7 @@ public class MainActivity extends Activity {
 
         LinearLayout content = card();
         root.addView(content, gap(22));
-        content.addView(text("Baixar do Instagram", 18, true, Color.rgb(25,25,27)));
+        content.addView(text("Baixar por link", 18, true, Color.rgb(25,25,27)));
         actionStatus = text("No Instagram, toque em Compartilhar e escolha Insta Float. Também dá para copiar o link e usar o botão abaixo.", 14, false, Color.rgb(92,92,99));
         content.addView(actionStatus, gap(10));
         downloadButton = button("Baixar", true);
@@ -89,7 +89,7 @@ public class MainActivity extends Activity {
         content.addView(clipboard, gap(9));
         clipboard.setOnClickListener(v -> readClipboard());
 
-        root.addView(text("Sem login e sem serviço de Acessibilidade nesta versão. Conteúdo privado continua sujeito às permissões do Instagram.", 12, false, Color.rgb(120,120,126)), gap(18));
+        root.addView(text("Sem login e sem serviço de Acessibilidade. A captura de tela usa a autorização oficial de compartilhamento de tela do Android.", 12, false, Color.rgb(120,120,126)), gap(18));
         setContentView(scroll);
     }
 
@@ -119,7 +119,7 @@ public class MainActivity extends Activity {
                 runOnUiThread(() -> {
                     current = result;
                     if (result == null) {
-                        actionStatus.setText("O Instagram não expôs a mídia publicamente nesse link. Tente conteúdo público e ainda ativo.");
+                        actionStatus.setText("O Instagram não expôs a mídia publicamente nesse link. Para Story em foto, use a bolha e 'Capturar Story / tela'.");
                     } else {
                         actionStatus.setText(result.video ? "✓ Vídeo encontrado." : "✓ Foto encontrada.");
                         downloadButton.setText(result.video ? "Baixar vídeo" : "Baixar foto");
