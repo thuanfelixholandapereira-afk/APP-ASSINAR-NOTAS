@@ -9,9 +9,9 @@ android {
     defaultConfig {
         applicationId 'com.thuan.instafloat'
         minSdk 26
-        targetSdk 28
-        versionCode 1
-        versionName '1.0'
+        targetSdk 35
+        versionCode 4
+        versionName '4.0'
     }
 
     buildTypes {
