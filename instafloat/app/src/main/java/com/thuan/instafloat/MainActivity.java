@@ -57,31 +57,36 @@ public class MainActivity extends Activity {
         scroll.addView(root);
 
         root.addView(text("Insta Float", 30, true, Color.rgb(20,20,22)));
-        root.addView(text("Use a bolha sobre o Instagram para capturar o Story/tela atual. A imagem é salva em Pictures/InstaFloat. Para Reels e posts públicos, você também pode compartilhar o link com o app.", 15, false, Color.rgb(92,92,99)), gap(8));
+        root.addView(text("Baixa o arquivo que o Instagram está servindo para Stories, Reels e posts públicos. O app não faz print, gravação de tela, redimensionamento nem recompressão.", 15, false, Color.rgb(92,92,99)), gap(8));
+
+        LinearLayout how = card();
+        root.addView(how, gap(22));
+        how.addView(text("Como usar", 18, true, Color.rgb(25,25,27)));
+        how.addView(text("1. Abra o Story, Reel ou post no Instagram.\n2. Toque em Compartilhar.\n3. Escolha Insta Float.\n4. O download começa automaticamente quando a mídia pública é encontrada.", 14, false, Color.rgb(70,70,75)), gap(12));
 
         LinearLayout setup = card();
-        root.addView(setup, gap(22));
-        setup.addView(text("Configuração", 18, true, Color.rgb(25,25,27)));
+        root.addView(setup, gap(18));
+        setup.addView(text("Bolha flutuante", 18, true, Color.rgb(25,25,27)));
         overlayStatus = text("", 14, false, Color.DKGRAY);
         setup.addView(overlayStatus, gap(12));
         Button overlay = button("Permitir bolha sobre outros apps", false);
         setup.addView(overlay, gap(8));
         overlay.setOnClickListener(v -> openOverlaySettings());
 
-        Button start = button("Ativar bolha flutuante", true);
-        root.addView(start, gap(18));
+        Button start = button("Ativar bolha", true);
+        setup.addView(start, gap(10));
         start.setOnClickListener(v -> startBubble());
 
         Button stop = button("Desativar bolha", false);
-        root.addView(stop, gap(9));
+        setup.addView(stop, gap(9));
         stop.setOnClickListener(v -> stopService(new Intent(this, FloatingService.class)));
 
         LinearLayout content = card();
-        root.addView(content, gap(22));
-        content.addView(text("Baixar por link", 18, true, Color.rgb(25,25,27)));
-        actionStatus = text("No Instagram, toque em Compartilhar e escolha Insta Float. Também dá para copiar o link e usar o botão abaixo.", 14, false, Color.rgb(92,92,99));
+        root.addView(content, gap(18));
+        content.addView(text("Baixar pelo link copiado", 18, true, Color.rgb(25,25,27)));
+        actionStatus = text("Se preferir, use Copiar link no Instagram e toque no botão abaixo.", 14, false, Color.rgb(92,92,99));
         content.addView(actionStatus, gap(10));
-        downloadButton = button("Baixar", true);
+        downloadButton = button("Baixar arquivo", true);
         downloadButton.setVisibility(View.GONE);
         content.addView(downloadButton, gap(14));
         downloadButton.setOnClickListener(v -> { if (current != null) MediaResolver.download(this, current); });
@@ -89,21 +94,15 @@ public class MainActivity extends Activity {
         content.addView(clipboard, gap(9));
         clipboard.setOnClickListener(v -> readClipboard());
 
-        root.addView(text("Sem login e sem serviço de Acessibilidade. A captura de tela usa a autorização oficial de compartilhamento de tela do Android.", 12, false, Color.rgb(120,120,126)), gap(18));
+        root.addView(text("Qualidade original = a maior qualidade que o Instagram disponibiliza naquele conteúdo. O Instagram pode ter comprimido o arquivo durante a publicação. Conteúdo privado ou bloqueado por login não é contornado pelo app.", 12, false, Color.rgb(120,120,126)), gap(18));
         setContentView(scroll);
     }
 
     private void handleIntent(Intent intent) {
         if (intent == null) return;
-        if (Intent.ACTION_SEND.equals(intent.getAction())) {
-            resolve(extractInstagramUrl(intent.getStringExtra(Intent.EXTRA_TEXT)));
-            return;
-        }
         String link = intent.getStringExtra("link");
         if (!TextUtils.isEmpty(link)) { resolve(link); return; }
-        if (intent.getBooleanExtra("process_clipboard", false)) new Handler().postDelayed(this::readClipboard, 400);
-        String msg = intent.getStringExtra("message");
-        if (!TextUtils.isEmpty(msg)) actionStatus.setText(msg);
+        if (intent.getBooleanExtra("process_clipboard", false)) new Handler().postDelayed(this::readClipboard, 250);
     }
 
     private void resolve(String link) {
@@ -113,21 +112,25 @@ public class MainActivity extends Activity {
         }
         current = null;
         downloadButton.setVisibility(View.GONE);
-        actionStatus.setText("Analisando o conteúdo…");
+        actionStatus.setText("Procurando a mídia em maior qualidade…");
         MediaResolver.resolve(link, new MediaResolver.Callback() {
             @Override public void onResult(MediaResolver.Result result) {
                 runOnUiThread(() -> {
                     current = result;
                     if (result == null) {
-                        actionStatus.setText("O Instagram não expôs a mídia publicamente nesse link. Para Story em foto, use a bolha e 'Capturar Story / tela'.");
+                        actionStatus.setText("O Instagram não liberou a mídia desse link sem autenticação. Tente conteúdo público e ainda ativo.");
                     } else {
-                        actionStatus.setText(result.video ? "✓ Vídeo encontrado." : "✓ Foto encontrada.");
-                        downloadButton.setText(result.video ? "Baixar vídeo" : "Baixar foto");
+                        String resolution = result.width > 0 && result.height > 0 ? " • " + result.width + "×" + result.height : "";
+                        actionStatus.setText((result.video ? "✓ Vídeo encontrado" : "✓ Foto encontrada") + resolution + ".");
+                        downloadButton.setText(result.video ? "Baixar MP4" : "Baixar imagem");
                         downloadButton.setVisibility(View.VISIBLE);
                     }
                 });
             }
-            @Override public void onError(String message) { runOnUiThread(() -> actionStatus.setText(message)); }
+
+            @Override public void onError(String message) {
+                runOnUiThread(() -> actionStatus.setText(message));
+            }
         });
     }
 
