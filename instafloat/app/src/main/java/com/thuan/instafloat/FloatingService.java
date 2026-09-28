@@ -21,6 +21,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class FloatingService extends Service {
+    public static final String ACTION_SHOW_BUBBLE = "com.thuan.instafloat.SHOW_BUBBLE";
+
     private WindowManager wm;
     private TextView bubble;
     private WindowManager.LayoutParams bubbleParams;
@@ -32,6 +34,13 @@ public class FloatingService extends Service {
         if (Build.VERSION.SDK_INT >= 23 && !Settings.canDrawOverlays(this)) { stopSelf(); return; }
         wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         showBubble();
+    }
+
+    @Override public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null && ACTION_SHOW_BUBBLE.equals(intent.getAction()) && bubble != null) {
+            bubble.setVisibility(View.VISIBLE);
+        }
+        return START_STICKY;
     }
 
     private void startAsForeground() {
@@ -47,7 +56,7 @@ public class FloatingService extends Service {
         PendingIntent pi = PendingIntent.getActivity(this, 1, open, flags);
         Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(this, channelId) : new Notification.Builder(this);
         b.setContentTitle("Insta Float ativo")
-                .setContentText("Compartilhe um link do Instagram com o Insta Float")
+                .setContentText("Toque na bolha para capturar o conteúdo atual")
                 .setSmallIcon(android.R.drawable.stat_sys_download)
                 .setOngoing(true)
                 .setContentIntent(pi);
@@ -56,25 +65,47 @@ public class FloatingService extends Service {
 
     private void showBubble() {
         bubble = new TextView(this);
-        bubble.setText("↓"); bubble.setTextSize(25); bubble.setTextColor(Color.WHITE); bubble.setGravity(Gravity.CENTER); bubble.setElevation(dp(8));
-        GradientDrawable bg = new GradientDrawable(); bg.setShape(GradientDrawable.OVAL); bg.setColor(Color.rgb(18,18,20)); bubble.setBackground(bg);
+        bubble.setText("↓");
+        bubble.setTextSize(25);
+        bubble.setTextColor(Color.WHITE);
+        bubble.setGravity(Gravity.CENTER);
+        bubble.setElevation(dp(8));
+        GradientDrawable bg = new GradientDrawable();
+        bg.setShape(GradientDrawable.OVAL);
+        bg.setColor(Color.rgb(18,18,20));
+        bubble.setBackground(bg);
 
         bubbleParams = new WindowManager.LayoutParams(dp(54), dp(54), overlayType(), WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
-        bubbleParams.gravity = Gravity.TOP | Gravity.START; bubbleParams.x = dp(12); bubbleParams.y = dp(220);
+        bubbleParams.gravity = Gravity.TOP | Gravity.START;
+        bubbleParams.x = dp(12);
+        bubbleParams.y = dp(220);
         wm.addView(bubble, bubbleParams);
 
         bubble.setOnTouchListener(new View.OnTouchListener() {
-            int startX, startY; float downX, downY; boolean moved;
+            int startX, startY;
+            float downX, downY;
+            boolean moved;
+
             @Override public boolean onTouch(View v, MotionEvent e) {
                 switch (e.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        startX = bubbleParams.x; startY = bubbleParams.y; downX = e.getRawX(); downY = e.getRawY(); moved = false; return true;
+                        startX = bubbleParams.x;
+                        startY = bubbleParams.y;
+                        downX = e.getRawX();
+                        downY = e.getRawY();
+                        moved = false;
+                        return true;
                     case MotionEvent.ACTION_MOVE:
-                        int dx = (int)(e.getRawX()-downX); int dy = (int)(e.getRawY()-downY);
-                        if (Math.abs(dx)+Math.abs(dy) > dp(8)) moved = true;
-                        bubbleParams.x = startX + dx; bubbleParams.y = startY + dy; wm.updateViewLayout(bubble, bubbleParams); return true;
+                        int dx = (int)(e.getRawX() - downX);
+                        int dy = (int)(e.getRawY() - downY);
+                        if (Math.abs(dx) + Math.abs(dy) > dp(8)) moved = true;
+                        bubbleParams.x = startX + dx;
+                        bubbleParams.y = startY + dy;
+                        wm.updateViewLayout(bubble, bubbleParams);
+                        return true;
                     case MotionEvent.ACTION_UP:
-                        if (!moved) togglePanel(); return true;
+                        if (!moved) togglePanel();
+                        return true;
                 }
                 return false;
             }
@@ -83,40 +114,93 @@ public class FloatingService extends Service {
 
     private void togglePanel() {
         if (panel != null) { removePanel(); return; }
-        LinearLayout box = new LinearLayout(this); box.setOrientation(LinearLayout.VERTICAL); box.setPadding(dp(14),dp(14),dp(14),dp(14)); box.setElevation(dp(10));
-        GradientDrawable bg = new GradientDrawable(); bg.setColor(Color.WHITE); bg.setCornerRadius(dp(18)); box.setBackground(bg);
-        TextView title = new TextView(this); title.setText("Insta Float"); title.setTextSize(16); title.setTextColor(Color.rgb(25,25,27)); title.setPadding(dp(4),0,dp(4),dp(8)); box.addView(title);
 
-        Button open = menuButton("Abrir capturador"); box.addView(open);
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setPadding(dp(14), dp(14), dp(14), dp(14));
+        box.setElevation(dp(10));
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(Color.WHITE);
+        bg.setCornerRadius(dp(18));
+        box.setBackground(bg);
+
+        TextView title = new TextView(this);
+        title.setText("Insta Float");
+        title.setTextSize(16);
+        title.setTextColor(Color.rgb(25,25,27));
+        title.setPadding(dp(4), 0, dp(4), dp(8));
+        box.addView(title);
+
+        Button capture = menuButton("📷 Capturar Story / tela");
+        box.addView(capture);
+        capture.setOnClickListener(v -> startCapture());
+
+        Button open = menuButton("Abrir aplicativo");
+        box.addView(open);
         open.setOnClickListener(v -> {
             removePanel();
             Intent i = new Intent(this, MainActivity.class);
-            i.putExtra("message", "No Instagram, use Compartilhar → Insta Float, ou copie o link e volte aqui para usar 'Usar link copiado'.");
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(i);
         });
-        Button close = menuButton("Fechar bolha"); box.addView(close); close.setOnClickListener(v -> stopSelf());
+
+        Button close = menuButton("Fechar bolha");
+        box.addView(close);
+        close.setOnClickListener(v -> stopSelf());
 
         WindowManager.LayoutParams p = new WindowManager.LayoutParams(dp(250), WindowManager.LayoutParams.WRAP_CONTENT, overlayType(), WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
-        p.gravity = Gravity.TOP | Gravity.START; p.x = Math.max(dp(8), bubbleParams.x); p.y = bubbleParams.y + dp(62);
-        panel = box; wm.addView(panel, p);
+        p.gravity = Gravity.TOP | Gravity.START;
+        p.x = Math.max(dp(8), bubbleParams.x);
+        p.y = bubbleParams.y + dp(62);
+        panel = box;
+        wm.addView(panel, p);
+    }
+
+    private void startCapture() {
+        removePanel();
+        if (bubble != null) bubble.setVisibility(View.INVISIBLE);
+        Intent i = new Intent(this, CaptureActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        startActivity(i);
     }
 
     private Button menuButton(String text) {
-        Button b = new Button(this); b.setText(text); b.setAllCaps(false); b.setTextSize(13);
-        GradientDrawable g = new GradientDrawable(); g.setColor(Color.rgb(241,241,243)); g.setCornerRadius(dp(12)); b.setBackground(g);
-        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(48)); p.topMargin = dp(7); b.setLayoutParams(p); return b;
+        Button b = new Button(this);
+        b.setText(text);
+        b.setAllCaps(false);
+        b.setTextSize(13);
+        GradientDrawable g = new GradientDrawable();
+        g.setColor(Color.rgb(241,241,243));
+        g.setCornerRadius(dp(12));
+        b.setBackground(g);
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(48));
+        p.topMargin = dp(7);
+        b.setLayoutParams(p);
+        return b;
     }
 
-    private int overlayType() { return Build.VERSION.SDK_INT >= 26 ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE; }
-    private void removePanel() { if (panel != null && wm != null) { try { wm.removeView(panel); } catch (Exception ignored) {} panel = null; } }
+    private int overlayType() {
+        return Build.VERSION.SDK_INT >= 26 ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE;
+    }
+
+    private void removePanel() {
+        if (panel != null && wm != null) {
+            try { wm.removeView(panel); } catch (Exception ignored) {}
+            panel = null;
+        }
+    }
 
     @Override public void onDestroy() {
         removePanel();
-        if (bubble != null && wm != null) { try { wm.removeView(bubble); } catch (Exception ignored) {} }
+        if (bubble != null && wm != null) {
+            try { wm.removeView(bubble); } catch (Exception ignored) {}
+        }
         super.onDestroy();
     }
 
     @Override public IBinder onBind(Intent intent) { return null; }
-    private int dp(int v) { return Math.round(v * getResources().getDisplayMetrics().density); }
+
+    private int dp(int v) {
+        return Math.round(v * getResources().getDisplayMetrics().density);
+    }
 }
