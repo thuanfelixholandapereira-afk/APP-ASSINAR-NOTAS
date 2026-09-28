@@ -47,7 +47,7 @@ public class FloatingService extends Service {
         PendingIntent pi = PendingIntent.getActivity(this, 1, open, flags);
         Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(this, channelId) : new Notification.Builder(this);
         b.setContentTitle("Insta Float ativo")
-                .setContentText("Toque na bolha sobre o Instagram para baixar")
+                .setContentText("Compartilhe um link do Instagram com o Insta Float")
                 .setSmallIcon(android.R.drawable.stat_sys_download)
                 .setOngoing(true)
                 .setContentIntent(pi);
@@ -87,10 +87,14 @@ public class FloatingService extends Service {
         GradientDrawable bg = new GradientDrawable(); bg.setColor(Color.WHITE); bg.setCornerRadius(dp(18)); box.setBackground(bg);
         TextView title = new TextView(this); title.setText("Insta Float"); title.setTextSize(16); title.setTextColor(Color.rgb(25,25,27)); title.setPadding(dp(4),0,dp(4),dp(8)); box.addView(title);
 
-        Button download = menuButton("↓ Baixar conteúdo atual"); box.addView(download);
-        download.setOnClickListener(v -> { removePanel(); InstaAccessibilityService.requestCapture(this); });
-        Button open = menuButton("Abrir aplicativo"); box.addView(open);
-        open.setOnClickListener(v -> { removePanel(); Intent i = new Intent(this, MainActivity.class); i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); startActivity(i); });
+        Button open = menuButton("Abrir capturador"); box.addView(open);
+        open.setOnClickListener(v -> {
+            removePanel();
+            Intent i = new Intent(this, MainActivity.class);
+            i.putExtra("message", "No Instagram, use Compartilhar → Insta Float, ou copie o link e volte aqui para usar 'Usar link copiado'.");
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        });
         Button close = menuButton("Fechar bolha"); box.addView(close); close.setOnClickListener(v -> stopSelf());
 
         WindowManager.LayoutParams p = new WindowManager.LayoutParams(dp(250), WindowManager.LayoutParams.WRAP_CONTENT, overlayType(), WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
